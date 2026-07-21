@@ -93,3 +93,42 @@ target_year = 2022
 ## 업데이트 (v2)
 
 업종 평균 대비 상대지표를 적용해 모델을 개선했습니다. 자세한 내용은 [v2_industry_adjustment/README_v2.md](./v2_industry_adjustment/README_v2.md)와 [v2_industry_adjustment/report_v2.pdf](./v2_industry_adjustment/report_v2.pdf)를 참고해 주세요.
+
+## 스크립트 실행 가이드
+
+`scripts/` 폴더에는 실제 개발 과정(시행착오 포함)이 그대로 남아 있습니다. 결과를 처음부터 재현하고
+싶으시다면 아래 순서만 실행하시면 됩니다. 나머지 파일은 개발 중 시도했다가 최종 결과에는 반영되지
+않은 탐색/실험 과정입니다.
+
+### v1 (87개 표본) 재현에 필요한 파일 — `scripts/` 폴더
+
+01_get_corp_code.py → 02_match_corp_code.py → 02b_dedup_matches.py →
+03_fetch_financials_beneish.py → 04_build_control_group.py → 05_fetch_control_financials.py →
+09_expand_control_group.py → 10_fetch_control_extra_financials.py → 13_add_large_cap_normal.py →
+**14_refreeze_training_data.py** (→ `training_data_final.csv` 완성)
+
+<details>
+<summary>제외된 파일 (탐색/실험용, 최종 결과에 미반영)</summary>
+
+- `06_logistic_regression.py` ~ `08_cross_validation.py`, `11_final_model_expanded.py`: 노트북으로
+  통합되기 전 초기 모델링 실험
+- `12_freeze_training_data.py`: 대기업 표본 추가 전 버전, 14번이 대체
+- `15_add_new_fraud_companies.py`, `16_revert_to_87samples.py`: 분식기업 2개를 추가했다가 표본
+  안정성 문제로 다시 되돌린 시행착오 과정
+</details>
+
+### v2 (97개 표본, 업종 보정) 재현에 필요한 파일 — `v2_industry_adjustment/scripts/` 폴더
+
+위 v1 과정 완료 후:
+
+17_fetch_industry_code.py → 19_sample_target_industries.py → 20_fetch_new_industry_financials.py →
+23_fetch_semiconductor_financials.py → 24_find_one_more_semiconductor.py →
+**21_finalize_v2.py** (→ `training_data_final_v2.csv` 완성)
+
+<details>
+<summary>제외된 파일 (탐색/실험용, 최종 결과에 미반영)</summary>
+
+- `18_compute_industry_relative_ratios.py`: 반도체군(261) 보정 로직 추가 전 버전, 21번이 대체
+- `22_check_semiconductor_companies.py`: 반도체 관련 회사 이름 확인용 탐색, 23번이 자체적으로
+  처리하여 별도 실행 불필요
+</details>
